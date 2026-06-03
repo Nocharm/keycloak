@@ -11,3 +11,4 @@
 - **compose 추가**: `docker-compose.yml` — postgres(healthcheck·volume) + keycloak(start-dev, depends_on healthy, 8080/9000). `docker compose config` 통과.
 - **런타임 검증 완료**: `up -d` → postgres healthy / keycloak running, `/health/ready` UP, master realm 토큰 발급(관리자 로그인) OK, realm 생성→`restart keycloak`→잔존(200) 으로 영속 검증. 테스트 realm 정리(204).
 - **README 작성**: 플레이스홀더 1줄 → 전체 문서(구성표·빠른 시작·환경 변수표·명령어·헬스 체크) 로 교체.
+- **SSO 동작 GUI 검증**: `demo` realm + 테스트 사용자 생성, OIDC client 2개(`site1` localhost:3000 / `site2` localhost:3001, public·standard flow) 등록. site1 로그인 → site2 자동 로그인(SSO) 및 site1 로그아웃 → site2 세션 종료(Single Logout) 확인. WHY: 단일 realm으로 다중 앱 세션 공유가 실제로 동작하는지 로컬에서 확인하기 위함.
