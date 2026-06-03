@@ -230,3 +230,90 @@ body.apple-login #kc-login { animation: appleFadeUp 0.7s var(--spring) both; ani
   body.apple-login .pf-v5-c-login__container { padding: 32px 20px; }
   body.apple-login #kc-page-title { font-size: 30px; }
 }
+
+/* ==========================================================================
+   Connected-service showcase — stacked browser-window cards on the right.
+   Left login form is untouched; this is an additive second column.
+   Markup: template.ftl #service-showcase > #service-stack; populated by showcase.js.
+   ========================================================================== */
+body.apple-login #service-showcase { display: none; }  /* off until JS fills it AND wide enough */
+
+/* Wide screens: form (left) + showcase (right) as a centered two-column row */
+@media (min-width: 901px) {
+  body.apple-login .pf-v5-c-login {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 80px;
+    min-height: 100vh;
+  }
+  body.apple-login .pf-v5-c-login__container { margin: 0; flex: 0 0 384px; }
+  body.apple-login #service-showcase.is-ready {
+    display: block;
+    flex: 0 0 560px;
+    animation: appleFadeUp 0.7s var(--spring) both;
+    animation-delay: 200ms;
+  }
+}
+
+body.apple-login #service-stack {
+  position: relative;
+  width: 560px;
+  height: 420px;          /* room for the lifted back cards above the front one */
+  margin: 0 auto;
+}
+
+/* A card = a fake browser window: title bar (traffic lights + name) + screenshot */
+body.apple-login .service-window {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 540px;
+  transform: translate(-50%, -50%);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.16);
+  transition: transform 0.7s var(--spring), opacity 0.7s var(--spring);
+  will-change: transform, opacity;
+}
+body.apple-login .sw-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 38px;
+  padding: 0 14px;
+  background: #fbfbfd;
+  border-bottom: 1px solid var(--hairline);
+}
+body.apple-login .sw-dots { display: flex; gap: 6px; }
+body.apple-login .sw-dots span { width: 11px; height: 11px; border-radius: var(--radius-pill); background: #d8d8dd; }
+body.apple-login .sw-dots span:nth-child(1) { background: #ff5f57; }
+body.apple-login .sw-dots span:nth-child(2) { background: #febc2e; }
+body.apple-login .sw-dots span:nth-child(3) { background: #28c840; }
+body.apple-login .sw-title {
+  flex: 1;
+  margin-right: 45px;     /* offset the dots so the title reads as centered */
+  text-align: center;
+  font-family: var(--font-text);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body.apple-login .sw-body { background: var(--surface-alt); }
+body.apple-login .sw-body img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1280 / 800;
+  object-fit: cover;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.apple-login #service-showcase.is-ready { animation: none; }
+  body.apple-login .service-window { transition: none; }
+}

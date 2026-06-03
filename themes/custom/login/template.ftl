@@ -213,7 +213,14 @@
 
     <@loginFooter.content/>
   </div>
+
+  <#-- Connected-service showcase: stacked browser-window cards, auto-rotated by showcase.js -->
+  <aside id="service-showcase" aria-hidden="true">
+    <div id="service-stack"></div>
+  </aside>
 </div>
+<script>const RES_PATH = "${url.resourcesPath}";</script>
+<script src="${url.resourcesPath}/js/showcase.js"></script>
 </body>
 </html>
 </#macro>
