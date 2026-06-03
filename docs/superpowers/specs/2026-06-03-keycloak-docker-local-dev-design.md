@@ -80,7 +80,7 @@ keycloak/
 ## 7. 검증 (성공 기준)
 
 1. `docker compose up -d` 후 `docker compose ps` — 두 서비스 `running`, postgres `healthy`.
-2. `curl -fsS http://localhost:8080/health/ready` 200 응답 (또는 브라우저 접속).
+2. `curl -fsS http://localhost:9000/health/ready` 200 응답 (`/health/ready`는 관리 포트 9000에 제공; 콘솔 접속은 8080).
 3. 관리 콘솔에 `.env` 계정으로 로그인 성공.
 4. realm 1개 생성 → `docker compose restart keycloak` → realm 잔존 확인 (영속 검증).
 
