@@ -1,181 +1,232 @@
 /* Apple-style login theme — layered on top of keycloak.v2 styles.css.
-   Scoped to body.apple-login so it never leaks into other themes.
-   Tokens mirror docs/superpowers/apple.md (Action Blue accent, SF Pro, pill CTAs). */
+   Tuned to match AI-portal admin login:
+   src/app/admin/login/page.tsx + tailwind.config.ts + styles/themes/apple.css.
+   Scoped to body.apple-login so it never leaks into other themes. */
 
 body.apple-login {
-  /* apple.md color + radius + type tokens */
-  --apple-primary: #0066cc;        /* Action Blue — the single interactive color */
-  --apple-primary-focus: #0071e3;  /* focus ring blue */
-  --apple-ink: #1d1d1f;            /* headlines / body on light */
-  --apple-ink-80: #333333;
-  --apple-ink-48: #7a7a7a;         /* muted / fine print */
-  --apple-canvas: #ffffff;
-  --apple-parchment: #f5f5f7;      /* signature off-white page bg */
-  --apple-hairline: #d2d2d7;       /* 1px borders */
-  --apple-radius-card: 18px;       /* rounded.lg */
-  --apple-radius-field: 12px;
-  --apple-radius-pill: 9999px;
-  --apple-font-text: -apple-system, "SF Pro Text", system-ui, "Inter", "Helvetica Neue", Arial, sans-serif;
-  --apple-font-display: -apple-system, "SF Pro Display", system-ui, "Inter", "Helvetica Neue", Arial, sans-serif;
+  /* Tokens copied from AI-portal apple.css (must stay in sync if that changes) */
+  --accent: #0066cc;
+  --accent-focus: #0071e3;
+  --on-accent: #ffffff;
+  --surface: #ffffff;
+  --surface-alt: #f5f5f7;       /* page canvas (bg-surface-alt) */
+  --ink: #1d1d1f;
+  --ink-secondary: #333333;
+  --ink-tertiary: #7a7a7a;
+  --hairline: #e0e0e0;
+  --error: #cc3300;
+  --radius-pill: 9999px;
+  --spring: cubic-bezier(0.16, 1, 0.3, 1);  /* ease-spring */
+  --dur: 350ms;
+  --font-display: "SF Pro Display", "Pretendard", system-ui, -apple-system, sans-serif;
+  --font-text: "SF Pro Text", "Pretendard", system-ui, -apple-system, sans-serif;
 
-  background: var(--apple-parchment);
-  font-family: var(--apple-font-text);
-  color: var(--apple-ink);
+  background: var(--surface-alt) !important;
+  font-family: var(--font-text);
+  color: var(--ink);
   -webkit-font-smoothing: antialiased;
 }
+/* Keep the page light even when v2 flips to dark via prefers-color-scheme */
+html.pf-v5-theme-dark body.apple-login { background: var(--surface-alt) !important; }
 
-/* Keep the page light even when the v2 template flips to dark mode by media query.
-   The Apple palette here is light-only by design. */
-html.pf-v5-theme-dark body.apple-login { background: var(--apple-parchment); }
+/* The reference has no realm wordmark — the page title is the only heading */
+body.apple-login #kc-header { display: none; }
 
-/* --- Layout: center the card on the parchment canvas --- */
+/* --- Layout: form sits directly on the canvas, no card. max-w-sm (384px) --- */
 body.apple-login .pf-v5-c-login__container {
-  max-width: 420px;
+  max-width: 384px;
   margin: 0 auto;
-  padding: 48px 20px;   /* spacing.xxl top rhythm */
+  padding: 44px 24px;   /* pt-11 (44px) for the nav band + px-6 */
 }
-
-/* Realm brand sits above the card as a quiet wordmark */
-body.apple-login #kc-header {
-  text-align: center;
-  margin-bottom: 24px;
-}
-body.apple-login #kc-header-wrapper {
-  font-family: var(--apple-font-display);
-  font-size: 21px;        /* tagline */
-  font-weight: 600;
-  letter-spacing: 0.231px;
-  color: var(--apple-ink);
-  padding: 0;
-  border: 0;
-  background: none;
-}
-
-/* --- The login card: flat white, hairline border, no shadow (apple: no chrome shadows) --- */
 body.apple-login .pf-v5-c-login__main {
-  background: var(--apple-canvas) !important;
-  border: 1px solid var(--apple-hairline);
-  border-radius: var(--apple-radius-card);
+  background: transparent !important;
+  border: 0 !important;
   box-shadow: none !important;
-  padding: 40px 36px;
-  width: 100%;
+  padding: 0 !important;
 }
 
-/* --- Headline: display-lg, weight 600, negative letter-spacing --- */
+/* --- Heading block: centered, display-md, with breathing room --- */
+body.apple-login .pf-v5-c-login__main-header { text-align: center; margin-bottom: 40px; }
 body.apple-login #kc-page-title {
-  font-family: var(--apple-font-display);
-  font-size: 40px;
+  font-family: var(--font-display);
+  font-size: 34px;            /* display-md */
   font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: -0.5px;
-  color: var(--apple-ink);
-  margin: 0 0 28px;
-  text-align: left;
+  line-height: 1.1;           /* tighter than the token's 1.47 so a wrapping title still reads as a headline */
+  letter-spacing: -0.374px;
+  color: var(--ink);
+  margin: 0;
 }
 
-/* --- Form spacing --- */
-body.apple-login .pf-v5-c-form__group { margin-bottom: 20px; }
+/* --- Form rhythm: gap-4 (16px) between groups --- */
+body.apple-login .pf-v5-c-login__main-body { padding: 0; }
+body.apple-login .pf-v5-c-form__group { margin: 0 0 16px; }
 
-/* Field labels: caption-strong, muted ink */
+/* Labels: caption (14px / 400), ink-secondary, mb-1 */
 body.apple-login .pf-v5-c-form__label,
 body.apple-login .pf-v5-c-form__label-text {
-  font-family: var(--apple-font-text);
+  font-family: var(--font-text);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 400;
+  line-height: 1.43;
   letter-spacing: -0.224px;
-  color: var(--apple-ink-80);
+  color: var(--ink-secondary);
+}
+body.apple-login .pf-v5-c-form__group-label { margin-bottom: 4px; }
+
+/* --- Inputs: pill, h-11 (44px), px-5, hairline border, surface bg ---
+   Two field carriers: a plain .pf-v5-c-form-control (username) and the
+   .pf-v5-c-input-group (password row with the show/hide button). */
+body.apple-login .pf-v5-c-form__group .pf-v5-c-form-control,
+body.apple-login .pf-v5-c-input-group {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  background: var(--surface) !important;
+  border: 1px solid var(--hairline) !important;
+  border-radius: var(--radius-pill) !important;
+  padding: 0 20px;
+  transition: border-color var(--dur) var(--spring);
+}
+/* the input-group is wider on the right to seat the round toggle button */
+body.apple-login .pf-v5-c-input-group { padding: 0 6px 0 20px; }
+/* inside an input-group, the inner form-control is naked (no double pill) */
+body.apple-login .pf-v5-c-input-group .pf-v5-c-form-control {
+  border: 0 !important;
+  background: transparent !important;
+  height: auto !important;
+  padding: 0 !important;
+  flex: 1 1 auto;
+  border-radius: 0 !important;
+}
+body.apple-login .pf-v5-c-input-group__item.pf-m-fill { flex: 1 1 auto; }
+/* kill PatternFly input-group item dividers/borders that show beside the toggle */
+body.apple-login .pf-v5-c-input-group__item {
+  border: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
 }
 
-/* --- Inputs: the .pf-v5-c-form-control span is the visible box; the <input> sits inside borderless --- */
-body.apple-login .pf-v5-c-form-control {
-  background: var(--apple-canvas) !important;
-  border: 1px solid var(--apple-hairline) !important;
-  border-radius: var(--apple-radius-field) !important;
-  padding: 2px 14px !important;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  --pf-v5-c-form-control--after--BorderBottomColor: transparent; /* kill PF underline */
-}
+/* the actual <input>: 17px body, transparent, no chrome */
 body.apple-login .pf-v5-c-form-control input {
-  font-family: var(--apple-font-text);
-  font-size: 17px;            /* apple body is 17px, not 16 */
+  font-family: var(--font-text);
+  font-size: 17px;
   line-height: 1.47;
-  color: var(--apple-ink);
+  letter-spacing: -0.374px;
+  color: var(--ink);
   background: transparent;
-  padding: 10px 0;
+  border: 0;
+  outline: none;
+  width: 100%;
+  height: 100%;
+  padding: 0;
 }
-body.apple-login .pf-v5-c-form-control::after,
-body.apple-login .pf-v5-c-form-control::before { border: 0 !important; }
+body.apple-login .pf-v5-c-form-control input::placeholder { color: var(--ink-tertiary); opacity: 0.5; }
+/* kill PatternFly's bottom-border / pseudo underline */
+body.apple-login .pf-v5-c-form-control::before,
+body.apple-login .pf-v5-c-form-control::after { display: none !important; border: 0 !important; }
 
-/* Focus ring: Action Blue, no patternfly underline */
-body.apple-login .pf-v5-c-form-control:focus-within {
-  border-color: var(--apple-primary) !important;
-  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.25) !important;
+/* Focus = border turns accent (no glow ring, matching the reference) */
+body.apple-login .pf-v5-c-form__group .pf-v5-c-form-control:focus-within,
+body.apple-login .pf-v5-c-input-group:focus-within {
+  border-color: var(--accent) !important;
+  box-shadow: none !important;
 }
 
-/* --- Primary submit button: Action Blue pill, full width, scale(0.95) active --- */
+/* Show/hide password — round ghost button inside the pill */
+body.apple-login .pf-v5-c-button.pf-m-control {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: var(--radius-pill) !important;
+  color: var(--ink-tertiary) !important;
+  transition: color var(--dur) var(--spring), background-color var(--dur) var(--spring), transform 0.1s var(--spring);
+}
+body.apple-login .pf-v5-c-button.pf-m-control:hover {
+  color: var(--ink) !important;
+  background: var(--surface-alt) !important;
+}
+body.apple-login .pf-v5-c-button.pf-m-control:active { transform: scale(0.95); }
+
+/* --- Primary submit: full-width accent pill, scale(0.95) active --- */
 body.apple-login #kc-login,
 body.apple-login .pf-v5-c-button.pf-m-primary {
-  background: var(--apple-primary) !important;
-  color: #ffffff !important;
+  width: 100%;
+  height: 44px;
+  margin-top: 8px;
+  background: var(--accent) !important;
+  color: var(--on-accent) !important;
   border: 0 !important;
-  border-radius: var(--apple-radius-pill) !important;
-  font-family: var(--apple-font-text);
+  border-radius: var(--radius-pill) !important;
+  font-family: var(--font-text);
   font-size: 17px;
   font-weight: 400;
   letter-spacing: -0.374px;
-  padding: 12px 22px !important;
-  transition: background-color 0.15s ease, transform 0.1s ease;
+  transition: background-color var(--dur) var(--spring), transform 0.1s var(--spring);
 }
 body.apple-login #kc-login:hover,
-body.apple-login .pf-v5-c-button.pf-m-primary:hover {
-  background: var(--apple-primary-focus) !important;
-}
+body.apple-login .pf-v5-c-button.pf-m-primary:hover { background: var(--accent-focus) !important; }
 body.apple-login #kc-login:active,
-body.apple-login .pf-v5-c-button.pf-m-primary:active {
-  transform: scale(0.95);   /* apple.md signature active state */
-}
+body.apple-login .pf-v5-c-button.pf-m-primary:active { transform: scale(0.95); }
 body.apple-login #kc-login:focus-visible,
 body.apple-login .pf-v5-c-button.pf-m-primary:focus-visible {
-  outline: 2px solid var(--apple-primary-focus);
+  outline: 2px solid var(--accent-focus);
   outline-offset: 2px;
 }
 
-/* --- Links (forgot password, register): Action Blue, underline on hover only --- */
-body.apple-login a {
-  color: var(--apple-primary);
-  text-decoration: none;
-}
+/* --- Links (forgot password, register): accent, underline on hover --- */
+body.apple-login a { color: var(--accent); text-decoration: none; }
 body.apple-login a:hover { text-decoration: underline; }
 
-/* Registration / footer band: quiet, centered */
+/* Registration / footer band + remember-me: quiet, centered */
 body.apple-login #kc-registration,
 body.apple-login .pf-v5-c-login__main-footer-band {
-  font-size: 14px;
-  color: var(--apple-ink-48);
-  text-align: center;
-  margin-top: 8px;
+  font-size: 14px; color: var(--ink-tertiary); text-align: center; margin-top: 8px;
 }
+body.apple-login .pf-v5-c-check__label { color: var(--ink-secondary); font-size: 14px; }
 
-/* Remember-me checkbox label */
-body.apple-login .pf-v5-c-check__label { color: var(--apple-ink-80); font-size: 14px; }
-
-/* Password show/hide + restart buttons: blend into the field, blue icon on hover */
-body.apple-login .pf-v5-c-button.pf-m-control {
-  background: transparent !important;
-  border: 0 !important;
-  color: var(--apple-ink-48) !important;
-}
-body.apple-login .pf-v5-c-button.pf-m-control:hover { color: var(--apple-primary) !important; }
-
-/* Inline alerts: soften to fit the flat aesthetic, keep semantic color on the title text */
+/* Inline alerts / field errors: error red, flat */
+body.apple-login .kc-feedback-text,
+body.apple-login .pf-v5-c-helper-text__item.pf-m-error,
+body.apple-login .pf-v5-c-form-control-error { color: var(--error) !important; }
 body.apple-login .pf-v5-c-alert {
-  border: 1px solid var(--apple-hairline);
-  border-radius: var(--apple-radius-field);
+  border: 1px solid var(--hairline);
+  border-radius: 18px;
   box-shadow: none;
 }
 
-/* Responsive: tighten the headline on phones (apple.md: hero → 34px at ≤640px) */
+/* ==========================================================================
+   Entrance animation — mirrors page.tsx (anim-reveal + staggered anim-fade-up).
+   Keyframes copied from AI-portal styles/animations.css.
+   ========================================================================== */
+@keyframes appleRevealIn {
+  0%   { transform: scale(0.7);  opacity: 0; filter: blur(8px); }
+  60%  { transform: scale(1.02); opacity: 1; filter: blur(0); }
+  100% { transform: scale(1);    opacity: 1; filter: blur(0); }
+}
+@keyframes appleFadeUp {
+  0%   { transform: translateY(12px); opacity: 0; filter: blur(4px); }
+  100% { transform: translateY(0);    opacity: 1; filter: blur(0); }
+}
+body.apple-login .pf-v5-c-login__main {
+  animation: appleRevealIn 0.5s var(--spring) both;
+}
+body.apple-login #kc-page-title { animation: appleFadeUp 0.7s var(--spring) both; animation-delay: 50ms; }
+body.apple-login .pf-v5-c-login__main-body .pf-v5-c-form__group:nth-of-type(1) { animation: appleFadeUp 0.7s var(--spring) both; animation-delay: 250ms; }
+body.apple-login .pf-v5-c-login__main-body .pf-v5-c-form__group:nth-of-type(2) { animation: appleFadeUp 0.7s var(--spring) both; animation-delay: 320ms; }
+body.apple-login #kc-login { animation: appleFadeUp 0.7s var(--spring) both; animation-delay: 400ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  body.apple-login .pf-v5-c-login__main,
+  body.apple-login #kc-page-title,
+  body.apple-login .pf-v5-c-login__main-body .pf-v5-c-form__group,
+  body.apple-login #kc-login { animation: none; }
+}
+
+/* Responsive: phones (apple.md ≤640px) */
 @media (max-width: 640px) {
-  body.apple-login .pf-v5-c-login__main { padding: 28px 22px; }
-  body.apple-login #kc-page-title { font-size: 32px; }
+  body.apple-login .pf-v5-c-login__container { padding: 32px 20px; }
+  body.apple-login #kc-page-title { font-size: 30px; }
 }
