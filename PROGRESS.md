@@ -9,3 +9,5 @@
 - **구현 플랜 작성**: 6-task 플랜(env.example → .env → compose → 기동·로그인 검증 → 영속 검증 → 기록). plan: `docs/superpowers/plans/2026-06-03-keycloak-docker-local-dev.md`.
 - **구현 시작**: `.env.example` 추가 (이미지 핀·관리자·DB 자격 키 정의). secret 실값은 `.env`(미커밋)로 주입.
 - **compose 추가**: `docker-compose.yml` — postgres(healthcheck·volume) + keycloak(start-dev, depends_on healthy, 8080/9000). `docker compose config` 통과.
+- **런타임 검증 완료**: `up -d` → postgres healthy / keycloak running, `/health/ready` UP, master realm 토큰 발급(관리자 로그인) OK, realm 생성→`restart keycloak`→잔존(200) 으로 영속 검증. 테스트 realm 정리(204).
+- **README 작성**: 플레이스홀더 1줄 → 전체 문서(구성표·빠른 시작·환경 변수표·명령어·헬스 체크) 로 교체.
