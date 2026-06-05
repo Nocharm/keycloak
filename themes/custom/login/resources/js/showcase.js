@@ -19,6 +19,9 @@
   var DROP_ROT = 12;      // deg clockwise tumble as it falls right
   var ENTER_DX = 240;     // px to the right of the back slot the new card slides in from
   var ENTER_DELAY = 500;  // ms to wait after the front card is gone before it slides in
+  var ENTRANCE_RISE = 26; // px each card starts below its slot on first load (float-up)
+  var ENTRANCE_DELAY = 200;   // ms before the first card rises in
+  var ENTRANCE_STAGGER = 90;  // ms between cards on first load
   var DROP_EASE = "cubic-bezier(0.7, 0, 0.3, 1)";   // slow → fast → slow
   var FAN_EASE = "cubic-bezier(0.16, 1, 0.3, 1)";   // spring
   var FAN_TRANS = "transform " + FAN_MS + "ms " + FAN_EASE + ", opacity " + FAN_MS + "ms " + FAN_EASE;
@@ -47,9 +50,10 @@
     var n = cards.length;
     var front = 0;
 
-    function fanTransform(slot, extraX) {
+    function fanTransform(slot, extraX, extraY) {
       var x = slot * FAN_DX + (extraX || 0);
-      return "translate(calc(-50% + " + x + "px), calc(-50% - " + (slot * FAN_DY) + "px)) "
+      var y = slot * FAN_DY - (extraY || 0);   // positive extraY starts the card lower (float-up)
+      return "translate(calc(-50% + " + x + "px), calc(-50% - " + y + "px)) "
         + "rotate(" + (slot * FAN_STEP) + "deg) scale(" + (1 - slot * FAN_SCALE) + ")";
     }
     function fanOpacity(slot) { return Math.max(0, 1 - slot * FAN_FADE); }
@@ -59,7 +63,31 @@
     }
     function slotOf(i) { return (i - front + n) % n; }
 
-    cards.forEach(function (c, i) { placeFan(c, slotOf(i)); c.style.opacity = String(fanOpacity(slotOf(i))); });
+    // First load: each card floats up into its fan slot, staggered + fading in.
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    cards.forEach(function (c, i) {
+      var slot = slotOf(i);
+      c.style.zIndex = String(n - slot);
+      if (reduce) {
+        c.style.transform = fanTransform(slot);
+        c.style.opacity = String(fanOpacity(slot));
+      } else {
+        c.style.transition = "none";
+        c.style.transform = fanTransform(slot, 0, ENTRANCE_RISE); // start a touch lower, invisible
+        c.style.opacity = "0";
+      }
+    });
+    if (!reduce) {
+      void stack.offsetWidth; // commit start state before staggering in
+      cards.forEach(function (c, i) {
+        var slot = slotOf(i);
+        setTimeout(function () {
+          c.style.transition = FAN_TRANS;
+          c.style.transform = fanTransform(slot);
+          c.style.opacity = String(fanOpacity(slot));
+        }, ENTRANCE_DELAY + slot * ENTRANCE_STAGGER);
+      });
+    }
 
     if (n < 2) return; // single card: nothing to rotate
 
