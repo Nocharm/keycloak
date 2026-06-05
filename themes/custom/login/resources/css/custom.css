@@ -38,21 +38,30 @@ body.apple-login { overflow: hidden; }
 /* The reference has no realm wordmark — the page title is the only heading */
 body.apple-login #kc-header { display: none; }
 
-/* --- Layout: form sits directly on the canvas, no card. max-w-sm (384px) --- */
+/* --- Layout: form sits directly on the canvas, no card. Fixed small width.
+   !important defeats PatternFly's responsive __main max-width (it grows the box
+   at the 1200px breakpoint otherwise). --- */
 body.apple-login .pf-v5-c-login__container {
-  max-width: 384px;
+  flex: 0 0 384px !important;
+  width: 384px !important;
+  max-width: 384px !important;
   margin: 0 auto;
   padding: 44px 24px;   /* pt-11 (44px) for the nav band + px-6 */
 }
 body.apple-login .pf-v5-c-login__main {
+  /* px + logical-property caps to defeat PatternFly's responsive max-inline-size */
+  width: 336px !important;
+  max-width: 336px !important;
+  max-inline-size: 336px !important;
+  min-width: 0 !important;
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
   padding: 0 !important;
 }
 
-/* --- Heading block: left-aligned, flush with the input pill's outer left edge --- */
-body.apple-login .pf-v5-c-login__main-header { text-align: left; padding-left: 0; margin-bottom: 40px; }
+/* --- Heading block: centered --- */
+body.apple-login .pf-v5-c-login__main-header { text-align: center; margin-bottom: 40px; }
 body.apple-login #kc-page-title {
   font-family: var(--font-display);
   font-size: 34px;            /* display-md */
@@ -77,8 +86,8 @@ body.apple-login .pf-v5-c-form__label-text {
   letter-spacing: -0.224px;
   color: var(--ink-secondary);
 }
-/* label text starts at the input pill's curve end (radius 22px), unlike the title */
-body.apple-login .pf-v5-c-form__label-text { padding-left: 22px; }
+/* labels centered, with padding above each input box (gap below the label) */
+body.apple-login .pf-v5-c-form__group > .pf-v5-c-form__label { text-align: center; margin-bottom: 12px; }
 body.apple-login .pf-v5-c-form__group-label { margin-bottom: 4px; }
 
 /* --- Inputs: pill, h-11 (44px), px-5, hairline border, surface bg ---
@@ -265,8 +274,9 @@ body.apple-login #kc-login { animation: appleFadeUp 0.7s var(--spring) both; ani
    ========================================================================== */
 body.apple-login #service-showcase { display: none; }  /* off until JS fills it AND wide enough */
 
-/* Wide screens: form (left) + showcase (right) as a centered two-column row */
-@media (min-width: 901px) {
+/* Wide screens only (>=1400px): form (left) + showcase (right) two-column row.
+   Below this the form shows alone, centered, so it's never clipped by the showcase. */
+@media (min-width: 1400px) {
   body.apple-login .pf-v5-c-login {
     display: flex;
     flex-direction: row;
