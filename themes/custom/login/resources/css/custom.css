@@ -60,8 +60,14 @@ body.apple-login .pf-v5-c-login__main {
   padding: 0 !important;
 }
 
-/* --- Heading block: centered --- */
-body.apple-login .pf-v5-c-login__main-header { text-align: center; margin-bottom: 40px; }
+/* --- Heading block: centered. Force a single grid column: keycloak.v2 styles.css
+   switches the header to `grid-template-columns: 70% 30%` at >=768px, which pushes
+   the centered title left into the 70% track. --- */
+body.apple-login .pf-v5-c-login__main-header {
+  grid-template-columns: 1fr !important;
+  text-align: center;
+  margin-bottom: 40px;
+}
 body.apple-login #kc-page-title {
   font-family: var(--font-display);
   font-size: 34px;            /* display-md */
@@ -274,9 +280,9 @@ body.apple-login #kc-login { animation: appleFadeUp 0.7s var(--spring) both; ani
    ========================================================================== */
 body.apple-login #service-showcase { display: none; }  /* off until JS fills it AND wide enough */
 
-/* Wide screens only (>=1400px): form (left) + showcase (right) two-column row.
-   Below this the form shows alone, centered, so it's never clipped by the showcase. */
-@media (min-width: 1400px) {
+/* >=640px: form (left) + showcase (right). The showcase may run off the right
+   edge on narrower screens (clipped, no scroll) — that's acceptable. */
+@media (min-width: 640px) {
   body.apple-login .pf-v5-c-login {
     display: flex;
     flex-direction: row;
