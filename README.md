@@ -32,9 +32,9 @@ open http://localhost:8080
 
 ## 서버 배포 (Mac → Windows → 서버)
 
-배포 경로: **Mac(개발)** 에서 푸시 → **Windows(중계)** 에서 풀 → `scp` 로 서버 전송 → **서버**에서 기동.
+배포 경로: **Mac(개발)** 에서 푸시 → **Windows(중계)** 에서 풀 → `scp` 로 서버 홈(`~/keycloak_dev`)에 전송 → **서버**에서 `/data/keycloak_dev` 로 옮겨 기동. (`/data` 는 용량이 넉넉하지만 쓰기 권한이 없어, 권한 있는 홈에 먼저 올린 뒤 `sudo` 로 옮긴다.)
 
-`.env` 는 `.gitignore` 처리되어 Windows 가 `git pull` 해도 작업본에 생기지 않는다. 따라서 `scp -r` 로 폴더째 보내면 `.env` 는 자연히 제외되고 `.git` 은 포함된다. (Windows 작업본에 `.env` 를 만들지 말 것 — 만들면 전송에 섞인다.)
+`.env` 는 `.gitignore` 처리되어 Windows 가 `git pull` 해도 작업본에 생기지 않는다. 따라서 `scp -r .` 로 폴더째 보내면 `.env` 는 자연히 제외되고 `.git`·`.gitattributes` 같은 숨김 파일은 포함된다. (전송할 폴더에 `.env` 를 만들지 말 것 — 있으면 같이 전송된다.)
 
 ```bash
 # ── 1) Mac: 커밋 후 푸시 ───────────────────────────────
@@ -44,22 +44,43 @@ git push origin main
 ```
 
 ```powershell
-# ── 2) Windows: 풀 (중계) ──────────────────────────────
+# ── 2) Windows: 풀 + 전송 (폴더로 이동 후 상대경로 '.') ──
+cd C:\path\to\keycloak                      # 전송할 폴더로 이동
 git pull origin main
-
-# ── 3) Windows → 서버: 폴더 전송 (.env 제외 / .git 포함) ─
-#    .env 는 작업본에 없으므로 자동 제외, .git 은 함께 복사됨
-scp -r C:\path\to\keycloak <user>@<server>:/opt/keycloak
+scp -r . <user>@<server>:~/keycloak_dev     # '.' = 현재 폴더 전체(.git 포함), .env 는 없으니 제외
 ```
 
 ```bash
-# ── 4) 서버: .env 작성 후 기동 ─────────────────────────
-cd /opt/keycloak
-cp .env.example .env            # 최초 1회
-#   .env 편집: 비밀번호(*-pw) 교체 + KEYCLOAK_HTTP_PORT=6502 설정
+# ── 3) 서버(최초 1회): 홈 → /data 로 옮기고 기동 ───────
+ssh <user>@<server>
+sudo mv ~/keycloak_dev /data/keycloak_dev
+cd /data/keycloak_dev
+cp .env.example .env            # .env 편집: 비밀번호(*-pw) + KEYCLOAK_HTTP_PORT=6502
 docker compose up -d
 #   접속: http://<server>:6502   (헬스: http://<server>:9000/health/ready)
 ```
+
+### 이후 업데이트 (반복 — 매번 이 명령으로 전송/반영)
+
+`/data/keycloak_dev` 가 이미 있으면 `mv` 는 폴더를 중첩시킨다. 대신 홈에 올린 뒤 **내용만 동기화**한다 — 서버의 `.env` 와 DB 볼륨(데이터)은 보존:
+
+```powershell
+# (Windows) 폴더로 이동 후 다시 전송
+cd C:\path\to\keycloak
+git pull origin main
+scp -r . <user>@<server>:~/keycloak_dev
+```
+
+```bash
+# (서버) 홈 → /data 동기화 후 반영
+ssh <user>@<server>
+sudo rsync -a --delete --exclude='.env' ~/keycloak_dev/ /data/keycloak_dev/
+rm -rf ~/keycloak_dev
+cd /data/keycloak_dev
+docker compose up -d            # compose/이미지 변경 시 재생성. 테마 파일만 바뀌었으면 로그인 화면 새로고침으로 반영(start-dev)
+```
+
+> `--exclude='.env'` 가 서버 `.env` 를 보호한다(소스엔 `.env` 가 없어 `--delete` 가 지우는 것을 방지). `rsync` 가 없으면 `sudo cp -a ~/keycloak_dev/. /data/keycloak_dev/` 로 대체(단, 이 경우 레포에서 삭제된 파일은 서버에 남는다).
 
 > **CRLF:** `.gitattributes` 가 `eol=lf` 를 강제하므로 Windows 체크아웃에서도 working tree 가 LF 로 유지된다 → `gen-services.sh` 셰뱅이 깨지지 않는다. 별도 `git config` 불필요. 단, **`.gitattributes` 추가 이전에 이미 클론/풀 한 작업본**은 한 번 정규화해야 한다: `git add --renormalize . && git commit -m "chore: normalize line endings"` (또는 Windows에서 재클론).
 
