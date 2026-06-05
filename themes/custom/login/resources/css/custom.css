@@ -244,31 +244,21 @@ body.apple-login .pf-v5-c-alert {
 }
 
 /* ==========================================================================
-   Entrance animation — mirrors page.tsx (anim-reveal + staggered anim-fade-up).
-   Keyframes copied from AI-portal styles/animations.css.
+   Entrance animation — the whole login box floats up + fades in as one unit,
+   the same float-up effect as the showcase cards (was a scale-in before).
+   appleFadeUp keyframe is shared with the showcase panel.
    ========================================================================== */
-@keyframes appleRevealIn {
-  0%   { transform: scale(0.7);  opacity: 0; filter: blur(8px); }
-  60%  { transform: scale(1.02); opacity: 1; filter: blur(0); }
-  100% { transform: scale(1);    opacity: 1; filter: blur(0); }
-}
 @keyframes appleFadeUp {
-  0%   { transform: translateY(12px); opacity: 0; filter: blur(4px); }
+  0%   { transform: translateY(18px); opacity: 0; filter: blur(4px); }
   100% { transform: translateY(0);    opacity: 1; filter: blur(0); }
 }
 body.apple-login .pf-v5-c-login__main {
-  animation: appleRevealIn 0.5s var(--spring) both;
+  animation: appleFadeUp 0.7s var(--spring) both;
+  animation-delay: 80ms;
 }
-body.apple-login #kc-page-title { animation: appleFadeUp 0.7s var(--spring) both; animation-delay: 50ms; }
-body.apple-login .pf-v5-c-login__main-body .pf-v5-c-form__group:nth-of-type(1) { animation: appleFadeUp 0.7s var(--spring) both; animation-delay: 250ms; }
-body.apple-login .pf-v5-c-login__main-body .pf-v5-c-form__group:nth-of-type(2) { animation: appleFadeUp 0.7s var(--spring) both; animation-delay: 320ms; }
-body.apple-login #kc-login { animation: appleFadeUp 0.7s var(--spring) both; animation-delay: 400ms; }
 
 @media (prefers-reduced-motion: reduce) {
-  body.apple-login .pf-v5-c-login__main,
-  body.apple-login #kc-page-title,
-  body.apple-login .pf-v5-c-login__main-body .pf-v5-c-form__group,
-  body.apple-login #kc-login { animation: none; }
+  body.apple-login .pf-v5-c-login__main { animation: none; }
 }
 
 /* Login box is intentionally non-responsive — always the same small fixed size. */
