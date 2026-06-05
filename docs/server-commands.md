@@ -85,3 +85,44 @@ docker compose up -d
 ```bash
 docker compose restart keycloak
 ```
+
+---
+
+## 커스텀 테마가 드롭다운에 안 보일 때 (진단)
+
+증상: Realm settings → Themes 드롭다운에 `custom`이 없고 로그인은 기본 화면.
+= Keycloak이 `/opt/keycloak/themes/custom/login` 을 못 찾는 상태. 아래 순서로 좁힌다.
+
+**A. 컨테이너가 테마를 보는가 (가장 중요):**
+```bash
+docker compose exec keycloak ls -la /opt/keycloak/themes/custom/login
+```
+- `No such file` → 전송/마운트/구조 문제 (B)
+- 파일이 보이면 → 권한 문제 (C)
+
+**B. 호스트 구조·중첩·바인드 소스 확인:**
+```bash
+ls -la /data/keycloak_dev/docker-compose.yml /data/keycloak_dev/themes/custom/login
+```
+```bash
+find /data/keycloak_dev -maxdepth 5 -type d -name login
+```
+```bash
+docker compose config | grep -B1 -A3 -i themes
+```
+→ `themes/themes/...` 처럼 중첩됐거나 `themes/custom/login` 이 없으면 전송 구조가 깨진 것. 올바른 위치로 다시 맞춘 뒤 `docker compose up -d`.
+
+**C. 권한 (컨테이너는 비root user — 못 읽으면 테마 무시됨):**
+```bash
+docker compose exec keycloak sh -c 'id; cat /opt/keycloak/themes/custom/login/theme.properties >/dev/null 2>&1 && echo READABLE || echo "NOT READABLE"'
+```
+- `NOT READABLE` 이면 호스트에서 읽기 권한 부여:
+```bash
+sudo chmod -R a+rX /data/keycloak_dev/themes
+```
+
+**D. 재스캔 (위를 고친 뒤, 또는 마운트 후 기동했을 때):**
+```bash
+docker compose restart keycloak
+```
+→ 다시 Realm settings → Themes 드롭다운 확인.
