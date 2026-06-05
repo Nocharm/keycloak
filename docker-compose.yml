@@ -31,7 +31,7 @@ services:
       # health/ready, metrics 를 관리 포트(9000)에 활성화
       KC_HEALTH_ENABLED: "true"
     ports:
-      - "8080:8080"   # 관리 콘솔 / OIDC 엔드포인트
+      - "${KEYCLOAK_HTTP_PORT:-8080}:8080"   # 관리 콘솔 / OIDC 엔드포인트 (호스트 포트는 .env 로 조정)
       - "9000:9000"   # 관리 포트: /health/ready 검증용 (이미지에 curl 없어 호스트에서 검증)
     depends_on:
       postgres:
