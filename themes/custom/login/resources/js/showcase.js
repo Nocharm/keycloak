@@ -9,11 +9,14 @@
   var ROTATE_MS = 3000;   // gap between drops
   var DROP_MS = 950;      // front-card drop duration
   var FAN_MS = 700;       // fan advance / fade-back-in duration
-  var FAN_STEP = 7;       // deg of fan rotation per slot behind the front
+  var FAN_STEP = 6;       // deg clockwise per slot (tops tilt right)
+  var FAN_DX = 34;        // px right per slot — fan opens to the upper-right
+  var FAN_DY = 30;        // px up per slot
   var FAN_SCALE = 0.05;   // shrink per slot
   var FAN_FADE = 0.12;    // opacity drop per slot
-  var DROP_Y = 460;       // px the front card travels down before it is gone
-  var DROP_ROT = -12;     // deg it rotates while falling
+  var DROP_X = 70;        // px right while falling (down-right)
+  var DROP_Y = 460;       // px down before it is gone
+  var DROP_ROT = 12;      // deg clockwise tumble as it falls right
   var DROP_EASE = "cubic-bezier(0.7, 0, 0.3, 1)";   // slow → fast → slow
   var FAN_EASE = "cubic-bezier(0.16, 1, 0.3, 1)";   // spring
   var FAN_TRANS = "transform " + FAN_MS + "ms " + FAN_EASE + ", opacity " + FAN_MS + "ms " + FAN_EASE;
@@ -43,7 +46,8 @@
     var front = 0;
 
     function fanTransform(slot) {
-      return "translate(-50%, -50%) rotate(" + (slot * FAN_STEP) + "deg) scale(" + (1 - slot * FAN_SCALE) + ")";
+      return "translate(calc(-50% + " + (slot * FAN_DX) + "px), calc(-50% - " + (slot * FAN_DY) + "px)) "
+        + "rotate(" + (slot * FAN_STEP) + "deg) scale(" + (1 - slot * FAN_SCALE) + ")";
     }
     function fanOpacity(slot) { return Math.max(0, 1 - slot * FAN_FADE); }
     function placeFan(card, slot) {
@@ -59,11 +63,10 @@
     setInterval(function () {
       var leaving = cards[front];
 
-      // 1) pull the front card straight down (center pivot) while rotating + fading out
-      leaving.style.transformOrigin = "50% 50%";
+      // 1) pull the front card down-and-slightly-right while rotating + fading out
       leaving.style.zIndex = String(n + 1);
       leaving.style.transition = "transform " + DROP_MS + "ms " + DROP_EASE + ", opacity " + DROP_MS + "ms " + DROP_EASE;
-      leaving.style.transform = "translate(-50%, calc(-50% + " + DROP_Y + "px)) rotate(" + DROP_ROT + "deg) scale(0.82)";
+      leaving.style.transform = "translate(calc(-50% + " + DROP_X + "px), calc(-50% + " + DROP_Y + "px)) rotate(" + DROP_ROT + "deg) scale(0.82)";
       leaving.style.opacity = "0";
 
       // 2) advance everyone else up the fan
@@ -78,7 +81,6 @@
       // 3) once it is fully gone, snap it (invisible) to the back of the fan, then ease in
       setTimeout(function () {
         leaving.style.transition = "none";
-        leaving.style.transformOrigin = "";        // back to the fan pivot (CSS)
         placeFan(leaving, n - 1);
         leaving.style.opacity = "0";
         void leaving.offsetWidth;                  // commit the snap before transitioning
@@ -102,8 +104,8 @@
     var title = document.createElement("div");
     title.className = "sw-title";
     title.textContent = item.title || "";
-    bar.appendChild(dots);
     bar.appendChild(title);
+    bar.appendChild(dots);  /* dots on the right (not macOS-left); colors reversed in CSS */
 
     var body = document.createElement("div");
     body.className = "sw-body";

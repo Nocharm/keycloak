@@ -254,11 +254,17 @@ body.apple-login #service-showcase { display: none; }  /* off until JS fills it 
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
+    /* `safe` so that when the two columns are wider than the viewport the row
+       falls back to start-alignment instead of clipping the left (the form). */
+    justify-content: safe center;
     gap: 80px;
     min-height: 100vh;
+    padding-left: 48px;   /* guaranteed left breathing room — form never hugs/escapes the edge */
+    padding-right: 48px;
   }
+  /* fixed-width form column that never shrinks or gets cut off */
   body.apple-login .pf-v5-c-login__container { margin: 0; flex: 0 0 384px; }
+  body.apple-login .pf-v5-c-login__main { width: 100%; }
   body.apple-login #service-showcase.is-ready {
     display: block;
     flex: 0 0 660px;
@@ -275,14 +281,14 @@ body.apple-login #service-stack {
   overflow: visible;      /* the dropping card falls past the box while fading */
 }
 
-/* A card = a fake browser window: title bar (traffic lights + name) + screenshot.
-   Base transform/opacity are set by showcase.js; pivot sits below so rotation fans. */
+/* A card = a fake browser window: title bar (window dots + name) + screenshot.
+   Base transform/opacity are set by showcase.js (center pivot; fan offsets in JS). */
 body.apple-login .service-window {
   position: absolute;
   left: 50%;
   top: 50%;
   width: 620px;
-  transform-origin: 50% 165%;
+  transform-origin: 50% 50%;
   transform: translate(-50%, -50%);
   background: var(--surface);
   border: 1px solid var(--hairline);
@@ -301,14 +307,15 @@ body.apple-login .sw-bar {
   background: #fbfbfd;
   border-bottom: 1px solid var(--hairline);
 }
+/* window dots: moved to the right and color order reversed so it doesn't read as macOS */
 body.apple-login .sw-dots { display: flex; gap: 6px; }
 body.apple-login .sw-dots span { width: 11px; height: 11px; border-radius: var(--radius-pill); background: #d8d8dd; }
-body.apple-login .sw-dots span:nth-child(1) { background: #ff5f57; }
+body.apple-login .sw-dots span:nth-child(1) { background: #28c840; }
 body.apple-login .sw-dots span:nth-child(2) { background: #febc2e; }
-body.apple-login .sw-dots span:nth-child(3) { background: #28c840; }
+body.apple-login .sw-dots span:nth-child(3) { background: #ff5f57; }
 body.apple-login .sw-title {
   flex: 1;
-  margin-right: 45px;     /* offset the dots so the title reads as centered */
+  margin-left: 45px;     /* offset the right-side dots so the title reads as centered */
   text-align: center;
   font-family: var(--font-text);
   font-size: 13px;
