@@ -10,7 +10,7 @@ Keycloak(26.x)을 Docker Compose로 띄우고(`demo` realm), `themes/custom/logi
 
 **검증**: 단위 테스트 하니스 없음(CSS·FTL·JS·compose). `docker compose`/`curl` 실행 결과와 Chrome headless 스크린샷으로 **런타임/시각 확인**한다. (testing.md의 "테스트 케이스 필수"는 비적용 — guidelines.md "테스트 하니스 없으면 수동 검증 명시" 조항을 따른다.)
 
-**문서**: `README.md`(구성·서버 배포), `docs/server-commands.md`(운영 명령), `docs/showcase-images.md`(PNG 등록), `docs/apply-theme-existing-keycloak.md`(기존 Keycloak 적용), `docs/showcase-image-prompt.md`(이미지 톤 통일), `docs/design-rules.md`(디자인 규칙).
+**문서**: `README.md`(구성·서버 배포), `docs/server-commands.md`(운영 명령), `docs/showcase-images.md`(PNG 등록), `docs/apply-theme-existing-keycloak.md`(기존 Keycloak 적용), `docs/showcase-image-prompt.md`(쇼케이스 이미지 자동 생성 — Claude Code 직접 실행), `docs/design-rules.md`(디자인 규칙).
 
 ---
 
