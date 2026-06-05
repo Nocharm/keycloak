@@ -132,23 +132,25 @@ body.apple-login .pf-v5-c-input-group:focus-within {
   box-shadow: none !important;
 }
 
-/* Show/hide password — round ghost button inside the pill */
+/* Show/hide password — small borderless ghost button inside the pill.
+   PatternFly draws the control border via an inset box-shadow, so killing
+   box-shadow (not just border) is what actually removes it. */
 body.apple-login .pf-v5-c-button.pf-m-control {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
+  padding: 0 !important;
   display: grid;
   place-items: center;
   background: transparent !important;
   border: 0 !important;
+  box-shadow: none !important;
   border-radius: var(--radius-pill) !important;
   color: var(--ink-tertiary) !important;
-  transition: color var(--dur) var(--spring), background-color var(--dur) var(--spring), transform 0.1s var(--spring);
+  transition: color var(--dur) var(--spring), transform 0.1s var(--spring);
 }
-body.apple-login .pf-v5-c-button.pf-m-control:hover {
-  color: var(--ink) !important;
-  background: var(--surface-alt) !important;
-}
-body.apple-login .pf-v5-c-button.pf-m-control:active { transform: scale(0.95); }
+body.apple-login .pf-v5-c-button.pf-m-control i { font-size: 13px; }
+body.apple-login .pf-v5-c-button.pf-m-control:hover { color: var(--ink) !important; }
+body.apple-login .pf-v5-c-button.pf-m-control:active { transform: scale(0.92); }
 
 /* --- Primary submit: full-width accent pill, scale(0.95) active --- */
 body.apple-login #kc-login,
