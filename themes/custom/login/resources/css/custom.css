@@ -29,6 +29,12 @@ body.apple-login {
 /* Keep the page light even when v2 flips to dark via prefers-color-scheme */
 html.pf-v5-theme-dark body.apple-login { background: var(--surface-alt) !important; }
 
+/* Viewport-locked: never show a scrollbar. The showcase images rendering made a
+   scrollbar flicker in/out, which shifted the centered layout. (custom.css only
+   loads in this theme, so html.login-pf here means our pages only.) */
+html.login-pf,
+body.apple-login { overflow: hidden; }
+
 /* The reference has no realm wordmark — the page title is the only heading */
 body.apple-login #kc-header { display: none; }
 
@@ -45,9 +51,8 @@ body.apple-login .pf-v5-c-login__main {
   padding: 0 !important;
 }
 
-/* --- Heading block: left-aligned, indented to where the input pill's corner
-   curve ends (radius = 44px height / 2 = 22px), display-md --- */
-body.apple-login .pf-v5-c-login__main-header { text-align: left; padding-left: 22px; margin-bottom: 40px; }
+/* --- Heading block: left-aligned, flush with the input pill's outer left edge --- */
+body.apple-login .pf-v5-c-login__main-header { text-align: left; padding-left: 0; margin-bottom: 40px; }
 body.apple-login #kc-page-title {
   font-family: var(--font-display);
   font-size: 34px;            /* display-md */
@@ -72,6 +77,8 @@ body.apple-login .pf-v5-c-form__label-text {
   letter-spacing: -0.224px;
   color: var(--ink-secondary);
 }
+/* label text starts at the input pill's curve end (radius 22px), unlike the title */
+body.apple-login .pf-v5-c-form__label-text { padding-left: 22px; }
 body.apple-login .pf-v5-c-form__group-label { margin-bottom: 4px; }
 
 /* --- Inputs: pill, h-11 (44px), px-5, hairline border, surface bg ---
@@ -117,7 +124,8 @@ body.apple-login .pf-v5-c-form-control input {
   background: transparent;
   border: 0;
   outline: none;
-  width: 100%;
+  flex: 1 1 auto;     /* share the pill with the error icon instead of forcing 100% */
+  min-width: 0;
   height: 100%;
   padding: 0;
 }
@@ -201,6 +209,19 @@ body.apple-login .pf-v5-c-check__label { color: var(--ink-secondary); font-size:
 body.apple-login .kc-feedback-text,
 body.apple-login .pf-v5-c-helper-text__item.pf-m-error,
 body.apple-login .pf-v5-c-form-control-error { color: var(--error) !important; }
+/* Red exclamation icon inside the pill: PatternFly positions the utilities
+   absolutely, leaving it off-center — make it a flex child so it centers. */
+body.apple-login .pf-v5-c-form-control__utilities {
+  position: static !important;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  margin-left: 6px;
+  padding: 0;
+}
+body.apple-login .pf-v5-c-form-control__icon { display: flex; align-items: center; }
+body.apple-login .pf-v5-c-form-control__icon .fa-exclamation-circle,
+body.apple-login .pf-v5-c-form-control__icon.pf-m-status { color: var(--error) !important; }
 body.apple-login .pf-v5-c-alert {
   border: 1px solid var(--hairline);
   border-radius: 18px;
@@ -235,11 +256,7 @@ body.apple-login #kc-login { animation: appleFadeUp 0.7s var(--spring) both; ani
   body.apple-login #kc-login { animation: none; }
 }
 
-/* Responsive: phones (apple.md ≤640px) */
-@media (max-width: 640px) {
-  body.apple-login .pf-v5-c-login__container { padding: 32px 20px; }
-  body.apple-login #kc-page-title { font-size: 30px; }
-}
+/* Login box is intentionally non-responsive — always the same small fixed size. */
 
 /* ==========================================================================
    Connected-service showcase — stacked browser-window cards on the right.

@@ -13,10 +13,7 @@
             <#if realm.password>
                 <form id="kc-form-login" class="${properties.kcFormClass!}" onsubmit="login.disabled = true; return true;" action="${url.loginAction}" method="post" novalidate="novalidate">
                     <#if !usernameHidden??>
-                        <#assign label>
-                            <#if !realm.loginWithEmailAllowed>${msg("username")}<#elseif !realm.registrationEmailAsUsername>${msg("usernameOrEmail")}<#else>${msg("email")}</#if>
-                        </#assign>
-                        <@field.input name="username" label=label autofocus=true autocomplete="username" value=login.username!'' placeholder="AD account" />
+                        <@field.input name="username" label="AD account" autofocus=true autocomplete="username" value=login.username!'' />
                     </#if>
 
                     <@field.password name="password" label=msg("password") forgotPassword=realm.resetPasswordAllowed autofocus=usernameHidden?? autocomplete="current-password" placeholder="●●●●●●●●" />
