@@ -17,6 +17,8 @@
   var DROP_X = 70;        // px right while falling (down-right)
   var DROP_Y = 460;       // px down before it is gone
   var DROP_ROT = 12;      // deg clockwise tumble as it falls right
+  var ENTER_DX = 240;     // px to the right of the back slot the new card slides in from
+  var ENTER_DELAY = 500;  // ms to wait after the front card is gone before it slides in
   var DROP_EASE = "cubic-bezier(0.7, 0, 0.3, 1)";   // slow → fast → slow
   var FAN_EASE = "cubic-bezier(0.16, 1, 0.3, 1)";   // spring
   var FAN_TRANS = "transform " + FAN_MS + "ms " + FAN_EASE + ", opacity " + FAN_MS + "ms " + FAN_EASE;
@@ -45,8 +47,9 @@
     var n = cards.length;
     var front = 0;
 
-    function fanTransform(slot) {
-      return "translate(calc(-50% + " + (slot * FAN_DX) + "px), calc(-50% - " + (slot * FAN_DY) + "px)) "
+    function fanTransform(slot, extraX) {
+      var x = slot * FAN_DX + (extraX || 0);
+      return "translate(calc(-50% + " + x + "px), calc(-50% - " + (slot * FAN_DY) + "px)) "
         + "rotate(" + (slot * FAN_STEP) + "deg) scale(" + (1 - slot * FAN_SCALE) + ")";
     }
     function fanOpacity(slot) { return Math.max(0, 1 - slot * FAN_FADE); }
@@ -78,17 +81,20 @@
         cards[i].style.opacity = String(fanOpacity(slotOf(i)));
       }
 
-      // 3) once it is fully gone, snap it (invisible) to the back of the fan, then ease in
+      // 3) after the front card is gone (+0.5s), the new back card slides in from
+      //    the right and fades in (inserted from the right), not just appearing.
       setTimeout(function () {
         leaving.style.transition = "none";
-        placeFan(leaving, n - 1);
+        leaving.style.transform = fanTransform(n - 1, ENTER_DX);  // parked off to the right
+        leaving.style.zIndex = "1";                               // back of the deck
         leaving.style.opacity = "0";
-        void leaving.offsetWidth;                  // commit the snap before transitioning
+        void leaving.offsetWidth;                                 // commit before transitioning
         requestAnimationFrame(function () {
           leaving.style.transition = FAN_TRANS;
-          leaving.style.opacity = String(fanOpacity(n - 1));
+          leaving.style.transform = fanTransform(n - 1);          // slide into the back slot
+          leaving.style.opacity = String(fanOpacity(n - 1));      // fade in
         });
-      }, DROP_MS);
+      }, DROP_MS + ENTER_DELAY);
     }, ROTATE_MS);
   }
 
