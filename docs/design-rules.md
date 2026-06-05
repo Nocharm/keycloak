@@ -13,7 +13,7 @@
 4. **UI 텍스트 영어** — 버튼·라벨·헤딩·placeholder 는 영어 기본
    (제목 `Login`, placeholder `Enter username or email` / `Enter password`).
    한글은 사용자 입력 데이터·내부 문서(`docs/**`, `PROGRESS.md`)에 한정.
-5. **비밀번호 토글** — 지향점은 press-and-hold 노출 패턴(누르는 동안만 평문).
-   현재는 Keycloak 기본 클릭 토글이며, 추후 정렬 대상.
+5. **비밀번호 토글** — press-and-hold 노출 패턴(누르는 동안만 평문, 떼면 다시 마스킹).
+   `resources/js/password-hold.js` 로 구현(클릭 토글 대체). 버튼은 `data-password-hold`.
 
 상세 출처: 템플릿 repo `.claude/design/styling-rules.md`(§1~§8), `.claude/design/apple.md`(토큰 원본 스펙).

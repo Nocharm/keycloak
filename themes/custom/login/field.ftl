@@ -69,10 +69,9 @@
         </span>
       </div>
       <div class="${properties.kcInputGroupItemClass}">
+        <#-- press-and-hold reveal (design-rules.md §5): handled by js/password-hold.js, not the default click toggle -->
         <button class="${properties.kcFormPasswordVisibilityButtonClass}" type="button" aria-label="${msg('showPassword')}"
-                aria-controls="${name}" data-password-toggle
-                data-icon-show="fa-eye fas" data-icon-hide="fa-eye-slash fas"
-                data-label-show="${msg('showPassword')}" data-label-hide="${msg('hidePassword')}">
+                aria-controls="${name}" data-password-hold aria-pressed="false">
             <i class="fa-eye fas" aria-hidden="true"></i>
         </button>
       </div>

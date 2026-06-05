@@ -221,6 +221,7 @@
 </div>
 <script>const RES_PATH = "${url.resourcesPath}";</script>
 <script src="${url.resourcesPath}/js/showcase.js"></script>
+<script src="${url.resourcesPath}/js/password-hold.js"></script>
 </body>
 </html>
 </#macro>

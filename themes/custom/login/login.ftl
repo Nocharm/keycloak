@@ -16,16 +16,16 @@
                         <#assign label>
                             <#if !realm.loginWithEmailAllowed>${msg("username")}<#elseif !realm.registrationEmailAsUsername>${msg("usernameOrEmail")}<#else>${msg("email")}</#if>
                         </#assign>
-                        <@field.input name="username" label=label autofocus=true autocomplete="username" value=login.username!'' placeholder="Enter username or email" />
+                        <@field.input name="username" label=label autofocus=true autocomplete="username" value=login.username!'' placeholder="AD account" />
                     </#if>
 
-                    <@field.password name="password" label=msg("password") forgotPassword=realm.resetPasswordAllowed autofocus=usernameHidden?? autocomplete="current-password" placeholder="Enter password" />
+                    <@field.password name="password" label=msg("password") forgotPassword=realm.resetPasswordAllowed autofocus=usernameHidden?? autocomplete="current-password" placeholder="●●●●●●●●" />
 
-                    <div class="${properties.kcFormGroupClass!}">
-                        <#if realm.rememberMe && !usernameHidden??>
+                    <#if realm.rememberMe && !usernameHidden??>
+                        <div class="${properties.kcFormGroupClass!}">
                             <@field.checkbox name="rememberMe" label=msg("rememberMe") value=login.rememberMe?? />
-                        </#if>
-                    </div>
+                        </div>
+                    </#if>
 
                     <input type="hidden" id="id-hidden-input" name="credentialId" <#if auth.selectedCredential?has_content>value="${auth.selectedCredential}"</#if>/>
                     <@buttons.loginButton />
