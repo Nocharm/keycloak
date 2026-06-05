@@ -30,6 +30,27 @@
   var base = (typeof RES_PATH !== "undefined" ? RES_PATH : "") + "/img/services/";
   if (!stack) return;
 
+  function shuffle(a) {                    // Fisher-Yates, in place — random deck order each load
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  // ?showcase=<title|filename> pins that card to the front (overrides the shuffle); 0 otherwise.
+  function pinnedFront(items) {
+    var q;
+    try { q = new URLSearchParams(window.location.search).get("showcase"); } catch (e) { q = null; }
+    if (!q) return 0;
+    var want = q.toLowerCase().replace(/\.png$/, "").trim();
+    for (var i = 0; i < items.length; i++) {
+      var t = (items[i].title || "").toLowerCase().trim();
+      var f = (items[i].file || "").toLowerCase().replace(/\.png$/, "").trim();
+      if (t === want || f === want) return i;
+    }
+    return 0;
+  }
+
   fetch(base + "manifest.json", { credentials: "same-origin" })
     .then(function (r) {
       if (!r.ok) throw new Error("manifest " + r.status);
@@ -43,12 +64,13 @@
   function render(items) {
     if (!Array.isArray(items) || items.length === 0) return;
 
+    shuffle(items);                       // randomize deck order on every load
     var cards = items.map(buildCard);
     cards.forEach(function (c) { stack.appendChild(c); });
     document.getElementById("service-showcase").classList.add("is-ready");
 
     var n = cards.length;
-    var front = 0;
+    var front = pinnedFront(items);       // ?showcase=<name> pins a card to the front, else 0
 
     function fanTransform(slot, extraX, extraY) {
       var x = slot * FAN_DX + (extraX || 0);
