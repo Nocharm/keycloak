@@ -261,7 +261,7 @@ body.apple-login #service-showcase { display: none; }  /* off until JS fills it 
   body.apple-login .pf-v5-c-login__container { margin: 0; flex: 0 0 384px; }
   body.apple-login #service-showcase.is-ready {
     display: block;
-    flex: 0 0 560px;
+    flex: 0 0 660px;
     animation: appleFadeUp 0.7s var(--spring) both;
     animation-delay: 200ms;
   }
@@ -269,17 +269,20 @@ body.apple-login #service-showcase { display: none; }  /* off until JS fills it 
 
 body.apple-login #service-stack {
   position: relative;
-  width: 560px;
-  height: 420px;          /* room for the lifted back cards above the front one */
+  width: 660px;
+  height: 560px;          /* room for the fan spread + the front card dropping out */
   margin: 0 auto;
+  overflow: visible;      /* the dropping card falls past the box while fading */
 }
 
-/* A card = a fake browser window: title bar (traffic lights + name) + screenshot */
+/* A card = a fake browser window: title bar (traffic lights + name) + screenshot.
+   Base transform/opacity are set by showcase.js; pivot sits below so rotation fans. */
 body.apple-login .service-window {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 540px;
+  width: 620px;
+  transform-origin: 50% 165%;
   transform: translate(-50%, -50%);
   background: var(--surface);
   border: 1px solid var(--hairline);

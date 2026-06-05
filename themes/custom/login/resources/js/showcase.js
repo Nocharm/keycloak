@@ -1,14 +1,22 @@
-/* Connected-service showcase: render PNGs from manifest.json as a stacked deck of
-   browser-window cards and auto-rotate the front card to the back. Login form never
-   depends on this — any failure degrades to an empty (display:none) panel. */
+/* Connected-service showcase: render PNGs from manifest.json as a fanned-out deck
+   of browser-window cards. On each tick the front card is pulled straight down
+   while rotating (ease-in-out: slow→fast→slow) and fully fades out, then is
+   recycled — invisible — to the back of the fan and eases back in. No afterimage.
+   Login form never depends on this: any failure degrades to an empty panel. */
 (function () {
   "use strict";
 
-  var ROTATE_MS = 3500;
-  var TRANS_MS = 700;    // must match .service-window transition in custom.css
-  var DEPTH_Y = 16;      // px each deeper card shifts up
-  var DEPTH_SCALE = 0.05;
-  var DEPTH_FADE = 0.18;
+  var ROTATE_MS = 3000;   // gap between drops
+  var DROP_MS = 950;      // front-card drop duration
+  var FAN_MS = 700;       // fan advance / fade-back-in duration
+  var FAN_STEP = 7;       // deg of fan rotation per slot behind the front
+  var FAN_SCALE = 0.05;   // shrink per slot
+  var FAN_FADE = 0.12;    // opacity drop per slot
+  var DROP_Y = 460;       // px the front card travels down before it is gone
+  var DROP_ROT = -12;     // deg it rotates while falling
+  var DROP_EASE = "cubic-bezier(0.7, 0, 0.3, 1)";   // slow → fast → slow
+  var FAN_EASE = "cubic-bezier(0.16, 1, 0.3, 1)";   // spring
+  var FAN_TRANS = "transform " + FAN_MS + "ms " + FAN_EASE + ", opacity " + FAN_MS + "ms " + FAN_EASE;
 
   var stack = document.getElementById("service-stack");
   var base = (typeof RES_PATH !== "undefined" ? RES_PATH : "") + "/img/services/";
@@ -33,29 +41,53 @@
 
     var n = cards.length;
     var front = 0;
-    apply(cards, front, n);
+
+    function fanTransform(slot) {
+      return "translate(-50%, -50%) rotate(" + (slot * FAN_STEP) + "deg) scale(" + (1 - slot * FAN_SCALE) + ")";
+    }
+    function fanOpacity(slot) { return Math.max(0, 1 - slot * FAN_FADE); }
+    function placeFan(card, slot) {
+      card.style.transform = fanTransform(slot);
+      card.style.zIndex = String(n - slot);
+    }
+    function slotOf(i) { return (i - front + n) % n; }
+
+    cards.forEach(function (c, i) { placeFan(c, slotOf(i)); c.style.opacity = String(fanOpacity(slotOf(i))); });
 
     if (n < 2) return; // single card: nothing to rotate
 
     setInterval(function () {
       var leaving = cards[front];
-      front = (front + 1) % n;
-      apply(cards, front, n);
-      leaving.style.zIndex = String(n + 1); // stays on top only while it slides back
-      setTimeout(function () { apply(cards, front, n); }, TRANS_MS + 80); // then drops behind the deck
-    }, ROTATE_MS);
-  }
 
-  function apply(cards, front, n) {
-    for (var i = 0; i < n; i++) {
-      var depth = (i - front + n) % n;
-      var card = cards[i];
-      card.style.transform =
-        "translate(-50%, calc(-50% - " + depth * DEPTH_Y + "px)) scale(" + (1 - depth * DEPTH_SCALE) + ")";
-      card.style.opacity = String(Math.max(0, 1 - depth * DEPTH_FADE));
-      card.style.zIndex = String(n - depth);
-      card.classList.toggle("is-front", depth === 0);
-    }
+      // 1) pull the front card straight down (center pivot) while rotating + fading out
+      leaving.style.transformOrigin = "50% 50%";
+      leaving.style.zIndex = String(n + 1);
+      leaving.style.transition = "transform " + DROP_MS + "ms " + DROP_EASE + ", opacity " + DROP_MS + "ms " + DROP_EASE;
+      leaving.style.transform = "translate(-50%, calc(-50% + " + DROP_Y + "px)) rotate(" + DROP_ROT + "deg) scale(0.82)";
+      leaving.style.opacity = "0";
+
+      // 2) advance everyone else up the fan
+      front = (front + 1) % n;
+      for (var i = 0; i < n; i++) {
+        if (cards[i] === leaving) continue;
+        cards[i].style.transition = FAN_TRANS;
+        placeFan(cards[i], slotOf(i));
+        cards[i].style.opacity = String(fanOpacity(slotOf(i)));
+      }
+
+      // 3) once it is fully gone, snap it (invisible) to the back of the fan, then ease in
+      setTimeout(function () {
+        leaving.style.transition = "none";
+        leaving.style.transformOrigin = "";        // back to the fan pivot (CSS)
+        placeFan(leaving, n - 1);
+        leaving.style.opacity = "0";
+        void leaving.offsetWidth;                  // commit the snap before transitioning
+        requestAnimationFrame(function () {
+          leaving.style.transition = FAN_TRANS;
+          leaving.style.opacity = String(fanOpacity(n - 1));
+        });
+      }, DROP_MS);
+    }, ROTATE_MS);
   }
 
   function buildCard(item) {
