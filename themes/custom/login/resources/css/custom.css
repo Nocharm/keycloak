@@ -356,7 +356,50 @@ body.apple-login .sw-body img {
   object-fit: cover;
 }
 
+/* Pause/play toggle: revealed 2s after hovering the showcase (see showcase.js).
+   Sits at the bottom-center of the deck, above the cards. */
+body.apple-login .sw-pause {
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  transform: translateX(-50%) translateY(8px);
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.82);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  backdrop-filter: saturate(180%) blur(12px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  color: var(--ink);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;   /* not interactive until revealed */
+  transition: opacity 0.25s ease, transform 0.25s var(--spring), background 0.2s ease, box-shadow 0.2s ease;
+}
+body.apple-login .sw-pause.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+body.apple-login .sw-pause:hover {
+  background: #fff;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.18);
+  transform: translateX(-50%) translateY(0) scale(1.08);
+}
+body.apple-login .sw-pause:active { transform: translateX(-50%) translateY(0) scale(0.95); }
+body.apple-login .sw-pause svg { display: block; width: 20px; height: 20px; fill: currentColor; }
+body.apple-login .sw-pause .sw-ic-play { display: none; }
+body.apple-login .sw-pause.is-paused .sw-ic-pause { display: none; }
+body.apple-login .sw-pause.is-paused .sw-ic-play { display: block; }
+
 @media (prefers-reduced-motion: reduce) {
   body.apple-login #service-showcase.is-ready { animation: none; }
   body.apple-login .service-window { transition: none; }
+  body.apple-login .sw-pause { transition: opacity 0.25s ease; }
 }

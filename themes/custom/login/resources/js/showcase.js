@@ -113,7 +113,55 @@
 
     if (n < 2) return; // single card: nothing to rotate
 
+    // Pause control: hover the showcase for 0.5s to reveal a pause/play toggle.
+    // The deck also auto-pauses every two full cycles (2*n drops); resuming runs
+    // another two cycles, then pauses again.
+    var paused = false;
+    var drops = 0;
+    var AUTO_PAUSE_AFTER = 2 * n;   // two full deck cycles
+
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "sw-pause";
+    btn.setAttribute("aria-label", "Pause showcase");
+    btn.innerHTML =
+      '<svg class="sw-ic-pause" viewBox="0 0 24 24" aria-hidden="true">' +
+      '<rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect></svg>' +
+      '<svg class="sw-ic-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>';
+    stack.appendChild(btn);
+
+    // Visible when paused (so the play button stays on screen) or while hovering.
+    var hoverShown = false;
+    function syncVisible() {
+      btn.classList.toggle("is-visible", paused || hoverShown);
+    }
+    function setPaused(p) {
+      paused = p;
+      btn.classList.toggle("is-paused", p);
+      btn.setAttribute("aria-label", p ? "Play showcase" : "Pause showcase");
+      syncVisible();
+    }
+    btn.addEventListener("click", function () {
+      setPaused(!paused);
+    });
+
+    // reveal the toggle 0.5s after the pointer enters the showcase; hide on leave
+    // unless paused (a paused deck keeps the play button shown)
+    var area = document.getElementById("service-showcase");
+    var revealTimer = null;
+    if (area) {
+      area.addEventListener("mouseenter", function () {
+        revealTimer = setTimeout(function () { hoverShown = true; syncVisible(); }, 500);
+      });
+      area.addEventListener("mouseleave", function () {
+        clearTimeout(revealTimer);
+        hoverShown = false;
+        syncVisible();
+      });
+    }
+
     setInterval(function () {
+      if (paused) return;
       var leaving = cards[front];
 
       // 1) pull the front card down-and-slightly-right while rotating + fading out
@@ -145,6 +193,13 @@
           leaving.style.opacity = String(fanOpacity(n - 1));      // fade in
         });
       }, DROP_MS + ENTER_DELAY);
+
+      // auto-pause every two full cycles
+      drops++;
+      if (drops >= AUTO_PAUSE_AFTER) {
+        drops = 0;
+        setPaused(true);
+      }
     }, ROTATE_MS);
   }
 
