@@ -50,7 +50,12 @@ GOAL: a SIMPLIFIED skeleton that is still recognizably this site.
 - On top of that skeleton, apply this small shared tone (so a row of these cards looks
   like one family):
   1. Canvas exactly 1280x800, no browser chrome / window title bar / rounded outer
-     corners; fill the whole canvas.
+     corners; fill the whole canvas. The content MUST span the full height edge to
+     edge — set html/body to exactly 1280x800 (margin:0; overflow:hidden) and make the
+     root container width:100% height:100%, laying out sections as a flex column so the
+     main panel stretches down near the bottom. Top and bottom margins must be small and
+     roughly EQUAL (≤ ~40px each). Do NOT leave the bottom quarter as an empty background
+     band (the v1 defect: content was only ~73% tall, pinned to the top).
   2. Background: soft diagonal gradient from a faint tint of the site's brand color
      into #f5f5f7.
   3. Cards/panels: white surface, 1px #e0e0e0 hairline border, 18px corner radius,
@@ -74,6 +79,14 @@ PRODUCE 4 CANDIDATES
 - Build a 2x2 contact sheet: a simple HTML grid embedding the 4 screenshots, screenshot
   it to contact.png so I can compare all four at once.
 
+VERIFY EACH SCREENSHOT FILLS THE CANVAS (before showing me — never hand over a dead band)
+- For each 1280x800 PNG, sample the average color of the bottom 120px and of a known-
+  background corner (e.g. 4,4). If they are nearly identical, the bottom is an empty band:
+  FIX the HTML (stretch the layout to 100% height / balance the margins) and RE-screenshot.
+- Reject any candidate whose top OR bottom empty margin exceeds ~80px. Loop until the real
+  content (panels/cards/ghost shapes) reaches close to the bottom edge with only small,
+  balanced margins.
+
 THEN STOP and show me the 4 candidates + contact sheet, and ask which one to keep.
 Do not finalize or clean up until I pick. After I pick, keep only the chosen PNG and
 tell me its path so I can copy it into the theme repo.
@@ -91,6 +104,7 @@ tell me its path so I can copy it into the theme repo.
 - [ ] **스크린샷이 아니라 단순화된 목업으로 보인다** — 본문이 고스트 플레이스홀더로 비워져 있다.
 - [ ] 그래도 레이아웃 구조·로고·시그니처 UI 형태·brand색으로 그 사이트임을 알 수 있다.
 - [ ] 공통 톤 속성(1280×800·배경 그라데이션·hairline 카드·flat·단일 accent·고스트)이 적용됐다.
+- [ ] **콘텐츠가 캔버스 전체 높이를 채운다** — 상·하 여백이 작고 균등(각 ≤ ~40px), 하단 1/4이 빈 배경 밴드가 아니다(v1 결함).
 - [ ] 바깥 브라우저 크롬/라운드 외곽이 없다.
 - [ ] accent가 사이트 brand색에서 왔고 한 가지 hue로 통일됐다.
 - [ ] 실제 사용자 데이터·시크릿이 들어가지 않았다(플레이스홀더만).
