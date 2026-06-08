@@ -56,6 +56,14 @@ GOAL: a SIMPLIFIED skeleton that is still recognizably this site.
      main panel stretches down near the bottom. Top and bottom margins must be small and
      roughly EQUAL (≤ ~40px each). Do NOT leave the bottom quarter as an empty background
      band (the v1 defect: content was only ~73% tall, pinned to the top).
+     This applies to EVERY layout family, not just a single column. For a sidebar +
+     content layout, give BOTH the sidebar and the content panel height:100% so they
+     reach the bottom. For a card/tile GRID that has too few rows to fill, either add
+     rows or let the rows stretch (grid container flex:1 + `grid-auto-rows:1fr`) so the
+     tiles grow and the grid bottom lands near the canvas edge — never let a short grid
+     leave a blank strip under it. The background (body) must paint the ENTIRE 1280x800;
+     a pure-white strip below the content (background not reaching the bottom) is the
+     same defect.
      If instead the layout is a CENTERED main modal / dialog / card on a background
      (e.g. a sign-in dialog), the gradient may fill the canvas, but size the centered
      element large enough that the surrounding background frame stays modest — the modal
@@ -86,16 +94,21 @@ PRODUCE 4 CANDIDATES
   it to contact.png so I can compare all four at once.
 
 VERIFY EACH SCREENSHOT FILLS THE CANVAS (before showing me — never hand over a dead band)
-- For each 1280x800 PNG, sample the average color of the bottom 120px and of a known-
-  background corner (e.g. 4,4). If they are nearly identical, the bottom is an empty band:
-  FIX the HTML (stretch the layout to 100% height / balance the margins) and RE-screenshot.
-- Reject any candidate whose top OR bottom empty margin exceeds ~80px. Loop until the real
-  content (panels/cards/ghost shapes) reaches close to the bottom edge with only small,
-  balanced margins.
-- Exception for the CENTERED-MODAL layout: the bottom band is legitimately background, so
-  skip the bottom-band check and instead verify the modal's bounding box spans ≥ ~70% of
-  width AND height (background frame ≤ ~15% per side). Reject and re-shoot if the modal is
-  small relative to the canvas.
+- Detect the real content bounding box by ROW/COLUMN VARIANCE, not by sampling a fixed
+  corner. (Do NOT assume corner 0,0 is the background — a full-width header/banner makes
+  that corner non-background and silently passes the check. This was the exact miss that
+  let an empty bottom band through.) For each row y, compute the spread of pixel colors
+  across that row (max−min of R,G,B over samples); a row with real content has a large
+  spread, a uniform background/blank row ~0. The first and last rows above a small
+  threshold give the content's top and bottom; do the same per column for left/right.
+- Reject any candidate whose top, bottom, left, OR right empty margin exceeds ~40px (the
+  bottom matters most — that is where the cut-off white strip appears). Loop: stretch the
+  layout to 100% height (panels height:100%, grids `grid-auto-rows:1fr` or more rows) and
+  RE-screenshot until content reaches within ~40px of every edge.
+- Exception for the CENTERED-MODAL layout: a balanced background frame around the modal is
+  intended, so instead verify the modal's bounding box spans ≥ ~70% of width AND height
+  (background frame ≤ ~15% per side). Reject and re-shoot if the modal is small relative
+  to the canvas.
 
 THEN STOP and show me the 4 candidates + contact sheet, and ask which one to keep.
 Do not finalize or clean up until I pick. After I pick, keep only the chosen PNG and
@@ -114,7 +127,7 @@ tell me its path so I can copy it into the theme repo.
 - [ ] **스크린샷이 아니라 단순화된 목업으로 보인다** — 본문이 고스트 플레이스홀더로 비워져 있다.
 - [ ] 그래도 레이아웃 구조·로고·시그니처 UI 형태·brand색으로 그 사이트임을 알 수 있다.
 - [ ] 공통 톤 속성(1280×800·배경 그라데이션·hairline 카드·flat·단일 accent·고스트)이 적용됐다.
-- [ ] **콘텐츠가 캔버스 전체 높이를 채운다** — 상·하 여백이 작고 균등(각 ≤ ~40px), 하단 1/4이 빈 배경 밴드가 아니다(v1 결함). 가운데 모달/다이얼로그형이면 모달이 캔버스 대부분(각 변 ≥ ~70%)을 차지하고 바깥 배경 여백이 크지 않다(각 변 ≤ ~15%).
+- [ ] **콘텐츠가 캔버스 전체 높이를 채운다** — 상·하 여백이 작고 균등(각 ≤ ~40px), 하단에 잘린 듯한 빈 밴드(배경 그라데이션이든 순백이든)가 없다. 사이드바·카드 그리드형도 패널이 바닥까지 닿는다(grid는 행을 늘리거나 추가). 가운데 모달/다이얼로그형이면 모달이 캔버스 대부분(각 변 ≥ ~70%)을 차지하고 바깥 배경 여백이 크지 않다(각 변 ≤ ~15%).
 - [ ] 바깥 브라우저 크롬/라운드 외곽이 없다.
 - [ ] accent가 사이트 brand색에서 왔고 한 가지 hue로 통일됐다.
 - [ ] 실제 사용자 데이터·시크릿이 들어가지 않았다(플레이스홀더만).
